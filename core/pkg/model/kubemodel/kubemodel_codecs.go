@@ -3934,14 +3934,10 @@ func (target *KubeModelSet) MarshalBinaryWithContext(ctx *EncodingContext) (err 
 
 	}
 	if target.Devices == nil {
-	if target.Devices == nil {
 		buff.WriteUInt8(uint8(0)) // write nil byte
 	} else {
 		buff.WriteUInt8(uint8(1)) // write non-nil byte
 
-		// --- [begin][write][map](map[string]*Device) ---
-		buff.WriteInt(len(target.Devices)) // map length
-		for vvvvvvvvvvvvvvv, zzzzzzzzzzzzzzz := range target.Devices {
 		// --- [begin][write][map](map[string]*Device) ---
 		buff.WriteInt(len(target.Devices)) // map length
 		for vvvvvvvvvvvvvvv, zzzzzzzzzzzzzzz := range target.Devices {
@@ -3956,7 +3952,6 @@ func (target *KubeModelSet) MarshalBinaryWithContext(ctx *EncodingContext) (err 
 			} else {
 				buff.WriteUInt8(uint8(1)) // write non-nil byte
 
-				// --- [begin][write][struct](Device) ---
 				// --- [begin][write][struct](Device) ---
 				buff.WriteInt(0) // [compatibility, unused]
 				errR := zzzzzzzzzzzzzzz.MarshalBinaryWithContext(ctx)
@@ -4000,11 +3995,6 @@ func (target *KubeModelSet) MarshalBinaryWithContext(ctx *EncodingContext) (err 
 			}
 		}
 		// --- [end][write][map](map[string]*InferenceEngine) ---
-				// --- [end][write][struct](Device) ---
-
-			}
-		}
-		// --- [end][write][map](map[string]*Device) ---
 
 	}
 
@@ -4777,31 +4767,31 @@ func (target *KubeModelSet) UnmarshalBinaryWithContext(ctx *DecodingContext) (er
 				fffff := ggggg
 				vvvvvvvvvvvvvvv = fffff
 
-			var zzzzzzzzzzzzzzz *Device
-			if buff.ReadUInt8() == uint8(0) {
-				zzzzzzzzzzzzzzz = nil
-			} else {
-				// --- [begin][read][struct](Device) ---
-				lllll := new(Device)
-				buff.ReadInt() // [compatibility, unused]
-				errR := lllll.UnmarshalBinaryWithContext(ctx)
-				if errR != nil {
-					return errR
+				var zzzzzzzzzzzzzzz *Device
+				if buff.ReadUInt8() == uint8(0) {
+					zzzzzzzzzzzzzzz = nil
+				} else {
+					// --- [begin][read][struct](Device) ---
+					lllll := new(Device)
+					buff.ReadInt() // [compatibility, unused]
+					errR := lllll.UnmarshalBinaryWithContext(ctx)
+					if errR != nil {
+						return errR
+					}
+					zzzzzzzzzzzzzzz = lllll
+					// --- [end][read][struct](Device) ---
+
 				}
-				zzzzzzzzzzzzzzz = lllll
-				// --- [end][read][struct](Device) ---
-
+				ddddd[vvvvvvvvvvvvvvv] = zzzzzzzzzzzzzzz
 			}
-			ddddd[vvvvvvvvvvvvvvv] = zzzzzzzzzzzzzzz
+			target.Devices = ddddd
+			// --- [end][read][map](map[string]*Device) ---
+
 		}
-		target.Devices = ddddd
-		// --- [end][read][map](map[string]*Device) ---
 
+	} else {
+		target.Devices = nil
 	}
-
-} else {
-	target.Devices = nil
-}
 	// field version check
 	if uint8(3) <= version {
 		if buff.ReadUInt8() == uint8(0) {
@@ -4846,7 +4836,6 @@ func (target *KubeModelSet) UnmarshalBinaryWithContext(ctx *DecodingContext) (er
 
 	} else {
 		target.InferenceEngines = nil
-		target.Devices = nil
 	}
 
 	return nil
@@ -5842,8 +5831,6 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 		fi = bstream.BingenFieldInfo{
 			Type: reflect.TypeFor[map[string]*Device](),
 			Name: "Devices",
-			Type: reflect.TypeFor[map[string]*Device](),
-			Name: "Devices",
 		}
 		// field version check
 		if uint8(3) <= version {
@@ -5853,7 +5840,6 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 					return
 				}
 			} else {
-				// --- [begin][read][streaming-map](map[string]*Device) ---
 				// --- [begin][read][streaming-map](map[string]*Device) ---
 				qqqq := buff.ReadInt() // map len
 				for range qqqq {
@@ -5868,23 +5854,23 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 					rrrr := ssss
 					vvvvvvvvvvvvvvv = rrrr
 
-				var zzzzzzzzzzzzzzz *Device
-				if buff.ReadUInt8() == uint8(0) {
-					zzzzzzzzzzzzzzz = nil
-				} else {
-					// --- [begin][read][struct](Device) ---
-					uuuu := new(Device)
-					buff.ReadInt() // [compatibility, unused]
-					errR := uuuu.UnmarshalBinaryWithContext(ctx)
-					if errR != nil {
-						stream.err = errR
-						return
+					var zzzzzzzzzzzzzzz *Device
+					if buff.ReadUInt8() == uint8(0) {
+						zzzzzzzzzzzzzzz = nil
+					} else {
+						// --- [begin][read][struct](Device) ---
+						uuuu := new(Device)
+						buff.ReadInt() // [compatibility, unused]
+						errR := uuuu.UnmarshalBinaryWithContext(ctx)
+						if errR != nil {
+							stream.err = errR
+							return
+
+						}
+						zzzzzzzzzzzzzzz = uuuu
+						// --- [end][read][struct](Device) ---
 
 					}
-					zzzzzzzzzzzzzzz = uuuu
-					// --- [end][read][struct](Device) ---
-
-				}
 
 					if !yield(fi, bstream.PairV(vvvvvvvvvvvvvvv, zzzzzzzzzzzzzzz)) {
 						return
@@ -5950,7 +5936,6 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 					}
 				}
 				// --- [end][read][streaming-map](map[string]*InferenceEngine) ---
-				// --- [end][read][streaming-map](map[string]*Device) ---
 
 			}
 
