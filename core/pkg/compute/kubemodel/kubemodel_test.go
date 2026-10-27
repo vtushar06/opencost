@@ -185,12 +185,12 @@ func TestComputeKubeModelSet(t *testing.T) {
 				assert.NotEmpty(t, kms.CronJobs)
 				assert.NotEmpty(t, kms.ReplicaSets)
 				assert.NotEmpty(t, kms.ResourceQuotas)
-				assert.NotEmpty(t, kms.Services)
-				assert.NotEmpty(t, kms.PersistentVolumes)
-				assert.NotEmpty(t, kms.PersistentVolumeClaims)
-				assert.NotEmpty(t, kms.DCGMDevices)
-				assert.NotEmpty(t, kms.InferenceEngines)
-			},
+			assert.NotEmpty(t, kms.Services)
+			assert.NotEmpty(t, kms.PersistentVolumes)
+			assert.NotEmpty(t, kms.PersistentVolumeClaims)
+			assert.NotEmpty(t, kms.Devices)
+			assert.NotEmpty(t, kms.InferenceEngines)
+		},
 		},
 	}
 
