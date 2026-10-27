@@ -1,0 +1,162 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opencost
+  namespace: opencost
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: opencost
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - deployments
+  - nodes
+  - pods
+  - services
+  - resourcequotas
+  - replicationcontrollers
+  - limitranges
+  - persistentvolumeclaims
+  - persistentvolumes
+  - namespaces
+  - endpoints
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["extensions"]
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  - deployments
+  - daemonsets
+  - replicasets
+  verbs:
+  - list
+  - watch
+  - get
+- apiGroups: ["batch"]
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["autoscaling"]
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["policy"]
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["storage.k8s.io"]
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: opencost
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: opencost
+subjects:
+- kind: ServiceAccount
+  name: opencost
+  namespace: opencost
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: namespace-info
+  namespace: opencost
+data:
+  namespace_info: |
+    namespace_info{namespace="opencost",uid="opencost-namespace-uid-67890"} 1
+    namespace_info{namespace="llm-d",uid="llm-d-namespace-uid-12345"} 1
+    namespace_info{namespace="monitoring",uid="monitoring-namespace-uid-54321"} 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencost
+  namespace: opencost
+  labels:
+    app: opencost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opencost
+  template:
+    metadata:
+      labels:
+        app: opencost
+    spec:
+      serviceAccountName: opencost
+      containers:
+      - name: opencost
+        image: opencost-pr3915:local
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9003
+          name: http
+        env:
+        - name: PROMETHEUS_SERVER_ENDPOINT
+          value: "http://prometheus.monitoring:9090"
+        - name: CLUSTER_ID
+          value: "pr3915-test"
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: INFERENCE_COST_ENABLED
+          value: "false"
+        - name: INFERENCE_MODEL_LABEL
+          value: "llm-d.ai/model"
+        - name: INFERENCE_COLLECTION_INTERVAL
+          value: "1m"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencost
+  namespace: opencost
+spec:
+  type: NodePort
+  selector:
+    app: opencost
+  ports:
+  - port: 9003
+    targetPort: 9003
+    nodePort: 30003
+    name: http
