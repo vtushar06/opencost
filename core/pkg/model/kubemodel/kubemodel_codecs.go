@@ -4764,11 +4764,6 @@ func (target *KubeModelSet) UnmarshalBinaryWithContext(ctx *DecodingContext) (er
 		} else {
 			// --- [begin][read][map](map[string]*Device) ---
 			eeeee := buff.ReadInt() // map len
-			ddddd := make(map[string]*DCGMDevice, eeeee)
-			target.Devices = nil
-		} else {
-			// --- [begin][read][map](map[string]*Device) ---
-			eeeee := buff.ReadInt() // map len
 			ddddd := make(map[string]*Device, eeeee)
 			for range eeeee {
 				var vvvvvvvvvvvvvvv string
@@ -4782,40 +4777,31 @@ func (target *KubeModelSet) UnmarshalBinaryWithContext(ctx *DecodingContext) (er
 				fffff := ggggg
 				vvvvvvvvvvvvvvv = fffff
 
-				var zzzzzzzzzzzzzzz *DCGMDevice
-				if buff.ReadUInt8() == uint8(0) {
-					zzzzzzzzzzzzzzz = nil
-				} else {
-					// --- [begin][read][struct](Device) ---
-					lllll := new(DCGMDevice)
-				var zzzzzzzzzzzzzzz *Device
-				if buff.ReadUInt8() == uint8(0) {
-					zzzzzzzzzzzzzzz = nil
-				} else {
-					// --- [begin][read][struct](Device) ---
-					lllll := new(Device)
-					buff.ReadInt() // [compatibility, unused]
-					errR := lllll.UnmarshalBinaryWithContext(ctx)
-					if errR != nil {
-						return errR
-					}
-					zzzzzzzzzzzzzzz = lllll
-					// --- [end][read][struct](Device) ---
-					// --- [end][read][struct](Device) ---
-
+			var zzzzzzzzzzzzzzz *Device
+			if buff.ReadUInt8() == uint8(0) {
+				zzzzzzzzzzzzzzz = nil
+			} else {
+				// --- [begin][read][struct](Device) ---
+				lllll := new(Device)
+				buff.ReadInt() // [compatibility, unused]
+				errR := lllll.UnmarshalBinaryWithContext(ctx)
+				if errR != nil {
+					return errR
 				}
-				ddddd[vvvvvvvvvvvvvvv] = zzzzzzzzzzzzzzz
+				zzzzzzzzzzzzzzz = lllll
+				// --- [end][read][struct](Device) ---
+
 			}
-			target.Devices = ddddd
-			// --- [end][read][map](map[string]*Device) ---
-			target.Devices = ddddd
-			// --- [end][read][map](map[string]*Device) ---
-
+			ddddd[vvvvvvvvvvvvvvv] = zzzzzzzzzzzzzzz
 		}
+		target.Devices = ddddd
+		// --- [end][read][map](map[string]*Device) ---
 
-	} else {
-		target.Devices = nil
 	}
+
+} else {
+	target.Devices = nil
+}
 	// field version check
 	if uint8(3) <= version {
 		if buff.ReadUInt8() == uint8(0) {
@@ -5854,8 +5840,8 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 		}
 
 		fi = bstream.BingenFieldInfo{
-			Type: reflect.TypeFor[map[string]*DCGMDevice](),
-			Name: "DCGMDevices",
+			Type: reflect.TypeFor[map[string]*Device](),
+			Name: "Devices",
 			Type: reflect.TypeFor[map[string]*Device](),
 			Name: "Devices",
 		}
@@ -5867,7 +5853,7 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 					return
 				}
 			} else {
-				// --- [begin][read][streaming-map](map[string]*DCGMDevice) ---
+				// --- [begin][read][streaming-map](map[string]*Device) ---
 				// --- [begin][read][streaming-map](map[string]*Device) ---
 				qqqq := buff.ReadInt() // map len
 				for range qqqq {
@@ -5882,36 +5868,29 @@ func (stream *KubeModelSetStream) Stream() iter.Seq2[bstream.BingenFieldInfo, *b
 					rrrr := ssss
 					vvvvvvvvvvvvvvv = rrrr
 
-					var zzzzzzzzzzzzzzz *DCGMDevice
-					if buff.ReadUInt8() == uint8(0) {
-						zzzzzzzzzzzzzzz = nil
-					} else {
-						// --- [begin][read][struct](Device) ---
-						uuuu := new(DCGMDevice)
-					var zzzzzzzzzzzzzzz *Device
-					if buff.ReadUInt8() == uint8(0) {
-						zzzzzzzzzzzzzzz = nil
-					} else {
-						// --- [begin][read][struct](Device) ---
-						uuuu := new(Device)
-						buff.ReadInt() // [compatibility, unused]
-						errR := uuuu.UnmarshalBinaryWithContext(ctx)
-						if errR != nil {
-							stream.err = errR
-							return
-
-						}
-						zzzzzzzzzzzzzzz = uuuu
-						// --- [end][read][struct](Device) ---
-						// --- [end][read][struct](Device) ---
+				var zzzzzzzzzzzzzzz *Device
+				if buff.ReadUInt8() == uint8(0) {
+					zzzzzzzzzzzzzzz = nil
+				} else {
+					// --- [begin][read][struct](Device) ---
+					uuuu := new(Device)
+					buff.ReadInt() // [compatibility, unused]
+					errR := uuuu.UnmarshalBinaryWithContext(ctx)
+					if errR != nil {
+						stream.err = errR
+						return
 
 					}
+					zzzzzzzzzzzzzzz = uuuu
+					// --- [end][read][struct](Device) ---
+
+				}
 
 					if !yield(fi, bstream.PairV(vvvvvvvvvvvvvvv, zzzzzzzzzzzzzzz)) {
 						return
 					}
 				}
-				// --- [end][read][streaming-map](map[string]*DCGMDevice) ---
+				// --- [end][read][streaming-map](map[string]*Device) ---
 
 			}
 
