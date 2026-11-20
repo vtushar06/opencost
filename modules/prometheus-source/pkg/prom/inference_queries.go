@@ -237,7 +237,7 @@ func (pds *PrometheusMetricsQuerier) QueryInferenceRunningRequestsP95(start, end
 }
 
 // queryInferenceGaugeQuantile runs quantile_over_time for a model-server
-// scheduler gauge, grouped by (model_name, pod_uid, namespace_uid), pinned to
+// scheduler gauge, grouped by (model_name, pod_uid, namespace_uid, engine), pinned to
 // the window end like the other inference queries.
 func (pds *PrometheusMetricsQuerier) queryInferenceGaugeQuantile(metric string, phi float64, start, end time.Time) *source.Future[source.InferenceEngineMetricResult] {
 	ctx := pds.promContexts.NewNamedContext(ClusterContextName)
@@ -309,7 +309,7 @@ type replicaMetricValue struct {
 }
 
 // queryCounterDeltaByReplica returns the net increase of a monotonic counter
-// metric over [start, end] per (model_name, pod_uid, namespace_uid). Same
+// metric over [start, end] per (model_name, pod_uid, namespace_uid, engine). Same
 // @-pinned two-instant-query approach and counter-reset handling as
 // queryCounterDelta, but grouped per replica and returned as labeled
 // QueryResults for the shared InferenceEngineMetricResult decoder.
@@ -347,7 +347,7 @@ func queryCounterDeltaByReplica(ctx *Context, metric string, start, end time.Tim
 	// close to an arbitrary timestamp.
 	//
 	// Widening it is safe here specifically because the pairing is per
-	// (model_name, pod_uid) and the delta loop iterates the end values only: a
+	// (model_name, pod_uid, engine) and the delta loop iterates the end values only: a
 	// longer lookback can supply an older baseline for a pod present at the
 	// end, but a pod that terminated before the window is never summed in. The
 	// same widening over a sum-by-model rollup would not be safe.
@@ -416,7 +416,7 @@ func queryCounterDeltaByReplica(ctx *Context, metric string, start, end time.Tim
 }
 
 // queryInstantMetricByReplica runs a Prometheus instant query evaluated at t
-// and returns samples keyed by "model_name|pod_uid".
+// and returns samples keyed by "model_name|pod_uid|engine".
 func queryInstantMetricByReplica(ctx *Context, query string, t time.Time) (map[string]replicaMetricValue, error) {
 	raw, _, err := ctx.query(query, t)
 	if err != nil {
@@ -456,7 +456,7 @@ func queryInstantMetricByReplica(ctx *Context, query string, t time.Time) (map[s
 }
 
 // queryInferenceGauge runs a window aggregation (avg or max) of a model-server
-// scheduler gauge, grouped by (model_name, pod_uid, namespace_uid).
+// scheduler gauge, grouped by (model_name, pod_uid, namespace_uid, engine).
 func (pds *PrometheusMetricsQuerier) queryInferenceGauge(metric, agg string, start, end time.Time) *source.Future[source.InferenceEngineMetricResult] {
 	ctx := pds.promContexts.NewNamedContext(ClusterContextName)
 
@@ -475,7 +475,7 @@ func (pds *PrometheusMetricsQuerier) queryInferenceGauge(metric, agg string, sta
 	return source.NewFuture(source.DecodeInferenceEngineMetricResult, resultsChan)
 }
 
-// queryGaugeOverTime evaluates `agg by (model_name, pod_uid, namespace_uid)
+// queryGaugeOverTime evaluates `agg by (model_name, pod_uid, namespace_uid, engine)
 // (agg_over_time(metric[window] @ end))` as an instant query pinned to the end
 // of the window, mirroring the clamping behaviour of queryCounterDelta.
 func queryGaugeOverTime(ctx *Context, metric, agg string, start, end time.Time) ([]*source.QueryResult, error) {

@@ -472,7 +472,7 @@ Both data sources collect the same signals:
 
 #### Required scrape configuration (Prometheus source)
 
-These metrics are keyed by **pod UID**, because a pod name is reused across a
+These metrics are keyed by **pod UID and engine index**. A pod name is reused across a
 pod's lifetime and every other entity in the KubeModel joins by UID. Serving
 engines emit only `model_name`, so the scrape job must attach the pod's
 identity, the same way the `dcgm-exporter` series carry `pod_uid`. Add the
@@ -503,8 +503,8 @@ simply be absent rather than wrong.
 ### KubeModel
 
 The aggregated signals land in the KubeModel as `InferenceEngine` entries,
-one per inference engine instance and keyed by pod UID, alongside the DCGM
-device model. Each entry carries `podUid` and `namespaceUid`, which index
+one per inference engine instance and keyed by (pod UID, engine index),
+alongside the DCGM device model. Each entry carries `podUid` and `namespaceUid`, which index
 `KubeModelSet.Pods` and `KubeModelSet.Namespaces` directly; a rollup by served
 model is a view a consumer computes by grouping on `modelName`. See
 `core/pkg/model/kubemodel/inference.go` and
@@ -525,9 +525,9 @@ Two scoping notes follow from that:
   rather than a collection failure.
 - **One engine per pod is the common case, not a guarantee.** Under vLLM data
   parallelism each DP rank runs as its own core engine process inside the same
-  pod. Keyed by pod UID, such a deployment collapses to a single entry per pod.
-  Extending identity to `(pod UID, engine)` is the shape that addresses it and
-  is not yet implemented.
+  pod. Identity is `(pod UID, engine index)`: vLLM labels every metric with
+  `engine`, the stringified core index, so a data-parallel pod keeps one entry
+  per core. A single-engine deployment reports `0`.
 
 ## Troubleshooting
 

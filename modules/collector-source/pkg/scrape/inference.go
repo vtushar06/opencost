@@ -171,9 +171,10 @@ func (s *InferenceScraper) Scrape() []metric.Update {
 					labels = map[string]string{}
 				}
 				// Attach the pod's Kubernetes identity from discovery; the
-				// serving engine only knows its model_name. pod_uid is the
-				// key the rest of the KubeModel joins on, so it rides along
-				// with the names rather than being reconstructed later.
+				// serving engine only knows its model_name and engine index.
+				// The KubeModel joins on pod_uid together with that engine
+				// index, so pod_uid rides along with the names rather than
+				// being reconstructed later.
 				labels[source.NamespaceLabel] = t.namespace
 				labels[source.NamespaceUIDLabel] = t.namespaceUID
 				labels[source.PodLabel] = t.pod

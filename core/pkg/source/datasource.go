@@ -476,50 +476,50 @@ type MetricsQuerier interface {
 	// Inference Saturation Metrics. These are the model-server scheduler
 	// signals standardized by the Gateway API Inference Extension Model
 	// Server Protocol (queue depth, running requests, KV-cache utilization),
-	// reported per model_name, namespace, and pod. Unlike host-level GPU
+	// reported per model_name, namespace, pod, and engine. Unlike host-level GPU
 	// utilization, they measure how much of a model server's serving
 	// capacity the workload actually consumes.
 
 	// QueryInferenceKVCacheUsageAvg returns the window-averaged KV-cache
-	// utilization (0-1) by model_name, namespace, and pod
+	// utilization (0-1) by model_name, namespace, pod, and engine
 	QueryInferenceKVCacheUsageAvg(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceKVCacheUsageMax returns the window-max KV-cache
-	// utilization (0-1) by model_name, namespace, and pod
+	// utilization (0-1) by model_name, namespace, pod, and engine
 	QueryInferenceKVCacheUsageMax(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceQueueDepthAvg returns the window-averaged count of
-	// requests waiting for scheduler capacity by model_name, namespace, and pod
+	// requests waiting for scheduler capacity by model_name, namespace, pod, and engine
 	QueryInferenceQueueDepthAvg(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceQueueDepthMax returns the window-max count of requests
-	// waiting for scheduler capacity by model_name, namespace, and pod
+	// waiting for scheduler capacity by model_name, namespace, pod, and engine
 	QueryInferenceQueueDepthMax(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceRunningRequestsAvg returns the window-averaged count of
-	// requests in the running batch by model_name, namespace, and pod
+	// requests in the running batch by model_name, namespace, pod, and engine
 	QueryInferenceRunningRequestsAvg(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferencePreemptions returns the count of scheduler preemptions
 	// (requests evicted from the running batch and recomputed) over the
-	// window by model_name, namespace, and pod. A pressure and instability
+	// window by model_name, namespace, pod, and engine. A pressure and instability
 	// signal: sustained preemptions mean the engine is thrashing its KV
 	// budget.
 	QueryInferencePreemptions(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceKVCacheUsageP95 returns the 95th-percentile KV-cache
-	// utilization (0-1) over the window by model_name, namespace, and pod.
+	// utilization (0-1) over the window by model_name, namespace, pod, and engine.
 	// Together with avg and max this gives a distribution summary that is
 	// computable identically from Prometheus (quantile_over_time) and from
 	// the collector's sample store.
 	QueryInferenceKVCacheUsageP95(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceQueueDepthP95 returns the 95th-percentile count of
-	// waiting requests over the window by model_name, namespace, and pod.
+	// waiting requests over the window by model_name, namespace, pod, and engine.
 	QueryInferenceQueueDepthP95(start, end time.Time) *Future[InferenceEngineMetricResult]
 
 	// QueryInferenceRunningRequestsMax returns the window-max count of
-	// requests in the running batch by model_name, namespace, and pod. The
+	// requests in the running batch by model_name, namespace, pod, and engine. The
 	// batch is bounded by the engine's concurrent-sequence limit (vLLM's
 	// max_num_seqs) independently of the KV-cache budget, and no vLLM metric
 	// exposes that limit; while the queue is non-empty the running gauge sits
@@ -529,7 +529,7 @@ type MetricsQuerier interface {
 
 	// QueryInferenceRunningRequestsP95 returns the 95th-percentile count of
 	// requests in the running batch over the window by model_name, namespace,
-	// and pod.
+	// pod, and engine.
 	QueryInferenceRunningRequestsP95(start, end time.Time) *Future[InferenceEngineMetricResult]
 }
 

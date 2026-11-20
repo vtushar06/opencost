@@ -1623,16 +1623,17 @@ func NewDCGMContainerUsageMaxMetricCollector() *metric.MetricCollector {
 // scrape/inference.go): KV-cache utilization, queue depth, and running
 // requests, per the Gateway API Inference Extension Model Server Protocol.
 // The pod_uid and namespace_uid labels are attached by the inference
-// scraper at scrape time from the discovered pod; model_name is emitted by
-// the serving engine itself. Grouping is by pod_uid rather than by the
-// (namespace, pod) name pair so these series carry the same identity the
-// rest of the KubeModel joins on, matching the DCGM collectors above.
+// scraper at scrape time from the discovered pod; model_name and engine are
+// emitted by the serving engine itself. Grouping is by pod_uid and engine
+// rather than by the (namespace, pod) name pair so these series carry the
+// same identity the rest of the KubeModel joins on, matching the DCGM
+// collectors above.
 
 //	avg(
 //		avg_over_time(
 //			vllm:kv_cache_usage_perc[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceKVCacheUsageAvgMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1655,7 +1656,7 @@ func NewInferenceKVCacheUsageAvgMetricCollector() *metric.MetricCollector {
 //		max_over_time(
 //			vllm:kv_cache_usage_perc[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceKVCacheUsageMaxMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1678,7 +1679,7 @@ func NewInferenceKVCacheUsageMaxMetricCollector() *metric.MetricCollector {
 //		avg_over_time(
 //			vllm:num_requests_waiting[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceQueueDepthAvgMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1701,7 +1702,7 @@ func NewInferenceQueueDepthAvgMetricCollector() *metric.MetricCollector {
 //		max_over_time(
 //			vllm:num_requests_waiting[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceQueueDepthMaxMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1724,7 +1725,7 @@ func NewInferenceQueueDepthMaxMetricCollector() *metric.MetricCollector {
 //		avg_over_time(
 //			vllm:num_requests_running[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceRunningRequestsAvgMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1745,7 +1746,7 @@ func NewInferenceRunningRequestsAvgMetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:num_preemptions_total[1h]
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferencePreemptionsMetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1767,7 +1768,7 @@ func NewInferencePreemptionsMetricCollector() *metric.MetricCollector {
 //	quantile_over_time(
 //		0.95,
 //		vllm:kv_cache_usage_perc[1h]
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceKVCacheUsageP95MetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1789,7 +1790,7 @@ func NewInferenceKVCacheUsageP95MetricCollector() *metric.MetricCollector {
 //	quantile_over_time(
 //		0.95,
 //		vllm:num_requests_waiting[1h]
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceQueueDepthP95MetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1812,7 +1813,7 @@ func NewInferenceQueueDepthP95MetricCollector() *metric.MetricCollector {
 //		max_over_time(
 //			vllm:num_requests_running[1h]
 //		)
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 // The running batch is bounded by the engine's concurrent-sequence limit
 // (vLLM's max_num_seqs) as well as by the KV budget, and vLLM exposes no
@@ -1839,7 +1840,7 @@ func NewInferenceRunningRequestsMaxMetricCollector() *metric.MetricCollector {
 //	quantile_over_time(
 //		0.95,
 //		vllm:num_requests_running[1h]
-//	) by (model_name, pod_uid, namespace_uid, cluster_id)
+//	) by (model_name, pod_uid, namespace_uid, engine, cluster_id)
 
 func NewInferenceRunningRequestsP95MetricCollector() *metric.MetricCollector {
 	return metric.NewMetricCollector(
@@ -1880,7 +1881,7 @@ func NewInferenceRunningRequestsP95MetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:prompt_tokens_total[1h]
-//	) by (model_name, namespace, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, cluster_id)
 
 func NewInferencePromptTokensMetricCollector() *metric.MetricCollector {
 	return newInferenceCostCounterCollector(metric.InferencePromptTokensID, metric.VLLMPromptTokensTotal)
@@ -1888,7 +1889,7 @@ func NewInferencePromptTokensMetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:generation_tokens_total[1h]
-//	) by (model_name, namespace, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, cluster_id)
 
 func NewInferenceGenerationTokensMetricCollector() *metric.MetricCollector {
 	return newInferenceCostCounterCollector(metric.InferenceGenerationTokensID, metric.VLLMGenerationTokensTotal)
@@ -1896,7 +1897,7 @@ func NewInferenceGenerationTokensMetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:request_prefill_time_seconds_sum[1h]
-//	) by (model_name, namespace, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, cluster_id)
 
 func NewInferenceInputProcessingTimeMetricCollector() *metric.MetricCollector {
 	return newInferenceCostCounterCollector(metric.InferenceInputProcessingTimeID, metric.VLLMRequestPrefillTimeSecondsSum)
@@ -1904,7 +1905,7 @@ func NewInferenceInputProcessingTimeMetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:request_time_per_output_token_seconds_sum[1h]
-//	) by (model_name, namespace, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, cluster_id)
 
 func NewInferenceOutputProcessingTimeMetricCollector() *metric.MetricCollector {
 	return newInferenceCostCounterCollector(metric.InferenceOutputProcessingTimeID, metric.VLLMRequestTimePerOutputTokenSecondsSum)
@@ -1912,7 +1913,7 @@ func NewInferenceOutputProcessingTimeMetricCollector() *metric.MetricCollector {
 
 //	increase(
 //		vllm:prefix_cache_hits_total[1h]
-//	) by (model_name, namespace, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, cluster_id)
 
 func NewInferenceCachedTokensMetricCollector() *metric.MetricCollector {
 	return newInferenceCostCounterCollector(metric.InferenceCachedTokensID, metric.VLLMPrefixCacheHitsTotal)
@@ -1944,7 +1945,7 @@ func newInferenceCostCounterCollector(id metric.MetricCollectorID, metricName st
 
 //	max(
 //		vllm:cache_config_info
-//	) by (model_name, namespace, enable_prefix_caching, cluster_id)
+//	) by (model_name, pod_uid, namespace, namespace_uid, engine, enable_prefix_caching, cluster_id)
 //
 // cache_config_info is an info metric: the value is meaningless and the
 // payload is the enable_prefix_caching label, so this uses the Info
